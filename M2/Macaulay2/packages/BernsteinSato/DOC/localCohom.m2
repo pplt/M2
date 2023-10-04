@@ -1,227 +1,177 @@
-document {
-     Key => [localCohom,Strategy],
-     Headline => "specify strategy for local cohomology",
-     "There are two main strategies, Walther and OaTa. If the user selects Walther, which is the default, then ", TO "LocStrategy", " determines the localization strategy for ", 
-     TT "localCohom(...Ideal...)", " and ", TT "localCohom(...Ideal, Module...)", ".",
-     UL { 
-	  {BOLD "Walther", " -- the algorithm of U. Walther that uses Cech complex."},
-       UL {
-            {BOLD "LocStrategy => null", 
-                 " -- used only for ", TT "localCohom(...Ideal...)", 
-                 ", localizations are done by straigthforward computation of 
-                 annihilators and b-polynomials as described in [1]."},
-            {BOLD "LocStrategy => OaTaWa", 
-                 " -- localizations are done following Oaku-Takayama-Walther method [2]."},
-            {BOLD "LocStrategy => Oaku", 
-                 " -- localizations are done following Oaku's algorithm."},
-       },
-	  {BOLD "OaTa", " -- restriction from the graph embedding is used, 
-	       which is due to T. Oaku and N. Takayama [3]. See ", TO "Drestriction", "."}   
-	  },
-          Caveat => {"localCohom(...Ideal, Module...) with the default strategy computes presentations for all the terms in the Cech complex regardless of the requested homological degrees. All strategies use the given generators of the ideal; the user is advised to call ", TO "mingens", " before calling localCohom."},
-          --Caveat => {"When OaTaWa strategy is used the error 'Bad luck!' 
-          --may appear. This means your are not a lucky individual...
-	  --The glitch is due to the fact that the localizations are iterated 
-	  --for this particular strategy; it was resolved for WaltherOaku, 
-	  --a strategy that considers everyone lucky."
-	  --},
-     "For detailed description of the algorithms see",
-     UL {
-	  {BOLD "[1] ", "Walther, ", 
-	       EM "Algorithmic computation of local cohomology 
-	       modules and the local cohomological dimension of algebraic 
-	       varieties (JPAA (139), 1999.)"
-	       },
-       {BOLD "[2] ", "Oaku, Takayama, Walther, ",
-            EM "A Localization Algorithm for D-modules (J. Symbolic Computation (29), 2000.)"
-            },
-	  {BOLD "[3] ", "Oaku, Takayama, ", 
-	       EM "Algorithms for D-modules -- restriction, tensor product, localization, and local cohomology groups (JPAA (156), 2001.)"
-	       }
-	  }    	      
-     } 
+doc ///
+    Key
+        [localCohom, Strategy]
+    Headline
+        specify strategy for local cohomology
+    Description
+        Text
+            There are two main strategies used in the computation of local cohomology: {\tt Walther} and {\tt OaTa}. 
+            
+            If the user selects {\tt Walther}, which is the default, then @TO localCohom@ uses the algorithm of Walther that relies on the computation of a Čech complex.
+            The option @TO LocStrategy@ then determines the localization strategy used for building the Čech complex:
+            
+            {\tt LocStrategy => null} is used only for {\tt localCohom(...Ideal...)}. Localizations are done by straigthforward computation of annihilators and $b$-functions, as described in [1].
+                                
+            {\tt LocStrategy => OaTaWa}: localizations are done following the Oaku-Takayama-Walther method [2].
+            
+            {\tt LocStrategy => Oaku}: localizations are done following Oaku's algorithm.
+            
+            If the user selects {\tt OaTa}, then @TO localCohom@ uses a restriction from the graph embedding, a method due to T. Oaku and N. Takayama [3]. See @TO Drestriction@.  
+    References         
+        [1] Walther, {\em Algorithmic computation of local cohomology modules and the local cohomological dimension of algebraic}  (JPAA (139), 1999).
+            
+        [2] Oaku, Takayama, Walther, {\em A localization algorithm for $D$-modules} (J. Symbolic Computation (29), 2000).
+            
+        [3] Oaku, Takayama, {\em Algorithms for $D$-modules: restriction, tensor product, localization, and local cohomology groups} (JPAA (156), 2001).
+    Caveat 
+        {\tt localCohom(...Ideal, Module...)} with the default strategy computes presentations for all the terms in the Čech complex regardless of the requested homological degrees. 
+        All strategies use the given generators of the ideal; the user is advised to call @TO mingens@ before calling @TO localCohom@.
+    SeeAlso
+        LocStrategy
+///
 
-document {
-     Key => LocStrategy }
-document {
-     Key => [localCohom,LocStrategy],
-     Headline => "specify localization strategy for local cohomology",
-     "These strategies determine how presentations of localization in the Cech complex are calculated when selecting Walther's strategy. See ", TO [localCohom,Strategy]
-     }
-document {
-     Key => Walther,
-     Headline => "an option for localCohom=>Strategy",
-     "see ", TO "localCohom"
-     } 
-document {
-     Key => OaTa,
-     Headline => "an option for localCohom=>Strategy",
-     "see ", TO "localCohom"
-     } 
-document {
-     Key => OaTaWa,
-     Headline => "an option for localCohom => LocStrategy",
-     SeeAlso => "localCohom"
-     }
+--Caveat => {"When OaTaWa strategy is used the error 'Bad luck!' 
+--may appear. This means your are not a lucky individual...
+--The glitch is due to the fact that the localizations are iterated 
+--for this particular strategy; it was resolved for WaltherOaku, 
+--a strategy that considers everyone lucky."
+--},
 
-document {
-     Key => localCohom,
-     Headline => "local cohomology",
-     "Local cohomology of a polynomial ring:",
-     UL {
-	  {TO (localCohom, Ideal)},
-	  {TO (localCohom, List, Ideal)},
-	  {TO (localCohom, ZZ, Ideal)}
-	  },
-     "Local cohomology of a holonomic module:",
-     UL {
-	  {TO (localCohom, Ideal, Module)},
-	  {TO (localCohom, ZZ, Ideal, Module)},
-	  {TO (localCohom, List, Ideal, Module)}
-	  },
-     SeeAlso => {"pruneLocalCohom"} 
-     }
-document {
-     Key => (localCohom, Ideal),
-     Headline => "local cohomology of a polynomial ring",
-     Usage => "H = localCohom I", 
-     Inputs => {
-	  "I" => {
-	       "an ideal of ", 
-	       EM {"R = k[x", SUB "1", ",...,x", SUB "n", "]"}
-	       }
-	  },
-     Outputs => {
-	  "H" => {
-	       "each entry of ", TT "H", " has an integer key and 
-	       contains the cohomology module in the corresponding degree."
-	       }
-	  },
-     EXAMPLE {
-	  "W = QQ[X, dX, Y, dY, Z, dZ, WeylAlgebra=>{X=>dX, Y=>dY, Z=>dZ}]",
-     	  "I = ideal (X*(Y-Z), X*Y*Z)",
-     	  "h = localCohom I",
-     	  "pruneLocalCohom h"
-	  },
-     Caveat => {"The modules returned are not simplified, 
-     	  use ", TO "pruneLocalCohom", "."},
-     SeeAlso => {"pruneLocalCohom"}
-     }  
+doc ///
+    Key
+        LocStrategy 
+        [localCohom, LocStrategy]
+    Headline
+        specify localization strategy for local cohomology
+    Description
+        Text
+            These strategies determine how presentations of localization in the Čech complex are calculated when selecting Walther's strategy. 
+    SeeAlso
+        [localCohom, Strategy]
+///
 
-document {
-     Key => (localCohom, List, Ideal),
-     Headline => "local cohomology of a polynomial ring",
-     Usage => "localCohom(l,I)",
-     Inputs => { "l", "I" },
-     Outputs => { { "the local cohomology of ", TT "I", " in the degrees specified by ", EM "l" } },
-     "See ", TO (localCohom, Ideal), " for the full description.",
-     EXAMPLE { 
-	  "W = QQ[X, dX, Y, dY, Z, dZ, WeylAlgebra=>{X=>dX, Y=>dY, Z=>dZ}]",
-     	  "I = ideal (X*(Y-Z), X*Y*Z)",
-     	  "h = localCohom({1,2}, I)",
-     	  "pruneLocalCohom h"
-	  },
-     SeeAlso => {"pruneLocalCohom"} 
-     }
+doc ///
+    Key
+        Walther
+    Headline
+        a valid value for the option Strategy of LocalCohom
+    SeeAlso
+	[localCohom, Strategy]
+///
 
-document {
-     Key => (localCohom, ZZ, Ideal),
-     Headline => "local cohomology of a polynomial ring",
-     Usage => "localCohom(d,I)",
-     Inputs => { "d", "I" },
-     Outputs => {{ "the local cohomology of ", TT "I", " in degree ", EM "d" }},
-     "See ", TO (localCohom, Ideal), " for the full description.",
-     EXAMPLE { 
-	  "W = QQ[X, dX, Y, dY, Z, dZ, WeylAlgebra=>{X=>dX, Y=>dY, Z=>dZ}]",
-     	  "I = ideal (X*(Y-Z), X*Y*Z)",
-	  "h = localCohom (2,I)",
-     	  "Dprune h"
-	  },
-     SeeAlso => {"pruneLocalCohom"} 
-     }
+doc ///
+    Key
+        OaTa
+    Headline
+        a valid value for the option Strategy of LocalCohom
+    SeeAlso
+	[localCohom, Strategy]
+///
 
-document {
-     Key => (localCohom, Ideal, Module),
-     Headline => "local cohomology of a D-module",
-     Usage => "H = localCohom(I,M)", 
-     Inputs => {
-	  "I" => {
-	       "an ideal of ", 
-	       EM {"R = k[x", SUB "1", ",...,x", SUB "n", "]"}
-	       },
-	  "M" => {
-	       "a holonomic module over Weyl algebra ", 
-	       EM{"A", SUB "n", "(k)"}
-	       }
-	  },
-     Outputs => {
-	  "H" => {
-	       "each entry of ", TT "H", " has an integer key and 
-	       contains the cohomology module in the corresponding degree."
-	       }
-	  },
-     EXAMPLE {
-	  "W = QQ[X, dX, Y, dY, Z, dZ, WeylAlgebra=>{X=>dX, Y=>dY, Z=>dZ}]",
-     	  "I = ideal (X*(Y-Z), X*Y*Z)",
-     	  "h = localCohom(I, W^1 / ideal{dX,dY,dZ})",
-     	  "pruneLocalCohom h"
-	  },
-     Caveat => {"The modules returned are not simplified, 
-     	  use ", TO "pruneLocalCohom", "."},
-     SeeAlso => {"pruneLocalCohom"} 
-     }
+doc ///
+    Key
+        OaTaWa
+    Headline
+        a valid value for the option Strategy of LocalCohom
+    SeeAlso
+	[localCohom, Strategy]
+///
 
-document {
-     Key => (localCohom, ZZ, Ideal, Module),
-     Headline => "local cohomology of a D-module",
-     Usage => "localCohom(d,I,M)",
-     Inputs => { "d", "I", "M" },
-     Outputs => {{
-	  "the local cohomology ", 
-	  EM {"H", SUB "I", "(M)"}, " in degree ", EM "d", ", where ", EM "I", 
-	  " is an ideal in a polynomial ring and ", EM "M", " is a D-module"
-	  }},
-     "See ", TO "localCohom(Ideal,Module)", " for the full description.",
-     EXAMPLE {
-	  "W = QQ[X, dX, Y, dY, Z, dZ, WeylAlgebra=>{X=>dX, Y=>dY, Z=>dZ}]",
-     	  "I = ideal (X*(Y-Z), X*Y*Z)",
-	  "h = localCohom(2, I, W^1 / ideal{dX,dY,dZ})",
-	  "pruneLocalCohom h"
-	  },
-     SeeAlso => {"pruneLocalCohom"} 
-     }
+doc ///
+    Key
+        localCohom
+        (localCohom, ZZ, Ideal)
+        (localCohom, ZZ, Ideal, Module)
+        (localCohom, List, Ideal)
+        (localCohom, List, Ideal, Module)
+        (localCohom, Ideal)
+        (localCohom, Ideal, Module)
+    Headline
+        compute local cohomology of a holonomic module 
+    Usage
+        H = localCohom(i, I)
+        H = localCohom(i, I, M)
+        T = localCohom(L, I)
+        T = localCohom(L, I, M)         
+        T = localCohom I
+        T = localCohom(I, M)
+    Inputs
+        I:Ideal
+            of a polynomial ring $R = \mathbb{Q}[x_1,\ldots,x_n]$
+        M:Module
+            holonomic over the Weyl algebra $A_n(\mathbb{Q}) = R\langle dx_1, \ldots, dx_n \rangle$
+        i:ZZ
+        L:List
+            containing the desired cohomological degrees 
+    Outputs
+        H:Module
+            the local cohomology module $H^i_I(M)$.
+            If the module $M$ is not passed as an argument, then it is assumed to be the polynomial ring $R$.
+        T:HashTable
+            containing a pair $i \Rightarrow H^i_I(M)$ for each integer $i$ in the list $L$.
+            If a list $L$ is not passed as an argument, then $i$ will range over all integers from $0$ to the number of generators of $I$.
+            If the holonomic module $M$ is not passed as an argument, then it is assumed to be the polynomial ring $R$.
+    Description
+        Text
+            Given an ideal $I$ of a polynomial ring $R = \mathbb{Q}[x_1,\ldots,x_n]$ and an integer $i$, {\tt localCohom(i, I)} computes the local cohomology module $H^i_I(R)$, returning a presentation for this module over the Weyl algebra $A_n(\mathbb{Q}) = R\langle dx_1,\ldots,dx_n\rangle$.
+        Example
+            R = QQ[x, y, z];
+            I = ideal(x*(y-z), x*y*z);
+            localCohom(2, I)
+            pruneLocalCohom oo
+        Text
+            As observed in the example above, the modules returned by {\tt localCohom} are not simplified, and the user is advised to use @TO pruneLocalCohom@ to perform the simplication.
+            
+            The user may specify a list of the desired cohomological degrees, rather than a single degree.
+            The output in this case will be a hash table containing a pair $i \Rightarrow H^i_I(R)$ for each integer $i$ included in the list passed by the user.
+        Example
+            pruneLocalCohom localCohom({1, 2}, I)
+        Text
+            If no cohomological degree or list of cohomological degrees is specified, {\tt localCohom} will compute the cohomology modules in all degrees ranging from $0$ to the number of generators of the ideal $I$. 
+        Example
+            pruneLocalCohom localCohom I
+        Text
+            The function {\tt localCohom} also computes local cohomology of holonomic modules over the Weyl algebra, and all of the choices for specifying cohomological degrees described above are available in this case as well. 
+        Example
+            W = QQ[x, dx, y, dy, z, dz, WeylAlgebra => {x => dx, y => dy, z => dz}];
+            I = ideal(x*(y-z), x*y*z);        
+            pruneLocalCohom localCohom(1, I, W^1/ideal(dx, dy, dz))
+            pruneLocalCohom localCohom({1, 2}, I, W^1/ideal(dx, dy, dz))
+            pruneLocalCohom localCohom(I, W^1/ideal(dx, dy, dz))
+    Caveat
+        The modules returned are not simplified; use @TO pruneLocalCohom@ to simplify them.
+        All strategies use the given generators of the ideal; the user is advised to call @TO mingens@ before calling @TO localCohom@.
+    SeeAlso
+        pruneLocalCohom
+        [localCohom, Strategy]
+        [localCohom, LocStrategy]
+///
 
-document {
-     Key => (localCohom, List, Ideal, Module),
-     Headline => "local cohomology of a D-module",
-     Usage => "localCohom(l,I,M)",
-     Inputs => { "l", "I", "M" },
-     Outputs => {{
-	  "the local cohomology ", 
-	  EM {"H", SUB "I", "(M)"}, " in degrees listed in ", EM "l", 
-	  ", where ", EM "I", 
-	  " is an ideal in a polynomial ring and ", EM "M", " is a D-module"
-	  }},
-     "See ", TO "localCohom(Ideal,Module)", " for the full description.",
-     EXAMPLE {
-	  "W = QQ[X, dX, Y, dY, Z, dZ, WeylAlgebra=>{X=>dX, Y=>dY, Z=>dZ}]",
-     	  "I = ideal (X*(Y-Z), X*Y*Z)",
-	  "h = localCohom({1,2}, I, W^1 / ideal{dX,dY,dZ})",
-	  "pruneLocalCohom h"
-	  },
-     SeeAlso => {"pruneLocalCohom"} 
-     }
-
-document {
-     Key => {(pruneLocalCohom, HashTable), pruneLocalCohom},
-     Headline => "prunes local cohomology modules",
-     Usage => "pruneLocalCohom H",
-     Inputs => {{"the output of ", TO "localCohom"}},
-     Outputs => {HashTable},
-     "This function applies ", TO "Dprune", " to all the keys of ", TT "H", ".", 
-     SeeAlso => {"localCohom", "Dprune"} 
-     }
-
+doc ///
+    Key
+        pruneLocalCohom
+        (pruneLocalCohom, Module)
+        (pruneLocalCohom, HashTable)
+    Headline
+        prunes local cohomology modules
+    Usage
+        Hi = pruneLocalCohom Hi
+        H = pruneLocalCohom H
+    Inputs
+        Hi:Module
+            a local cohomology module returned by @TO localCohom@
+        H:HashTable
+            a hash table of local cohomology modules, as returned by @TO localCohom@
+    Outputs
+        Hi:Module
+        H:HashTable
+    Description
+        Text
+            This function applies @TO Dprune@ to all the values of {\tt H}. 
+    SeeAlso
+        localCohom
+        Dprune 
+///
 
 document {
      Key => {(deRhamAll, RingElement), deRhamAll},

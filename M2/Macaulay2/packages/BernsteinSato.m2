@@ -295,11 +295,17 @@ load "./BernsteinSato/DOC/other.m2"
 --------------------------------------------------------------------------------
 
 end--
+
 restart
+
 uninstallPackage "BernsteinSato"
+
 installPackage "Dmodules"
+
 installPackage "HolonomicSystems"
+
 installPackage "BernsteinSato"
+
 installPackage("BernsteinSato", RerunExamples => true)
 
 restart

@@ -2,7 +2,7 @@
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
--- Takes a cyclic holonomic module D_n/I and returns 
+-- Takes a holonomic module D_n/I and returns 
 -- localization D_n/I [1/f] as D_n module
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -51,23 +51,26 @@ DlocalizeAll(Module, RingElement) := options -> (M, f) -> (
 --
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------
-computeLocalization = (M, f, output, options) -> (
+computeLocalization = (M, f, output, options) -> 
+(
+    pInfo(1, "ENTERING computeLocalization...");
    if f == 0 then error "can't localize at 0";
    W := ring M;
    r := numgens target gens M; 
    -- case 1: M is a proper submodule of (D_n)^r/N
    -- MES: the original version did not use zeroize.
-   ensureQuotientModule(M, "expected input to be a cokernel");
+   ensureQuotientModule(M, "computeLocalization: expected module to be a cokernel");
    -- case 2: M is a cokernel
    
    outputList := {};
-   pInfo(1, "localize: Computing localization with " | 
+   pInfo(1, "computeLocalization: Computing localization with " | 
 	toString options.Strategy | " strategy...");
    
    if (options.Strategy === Oaku) then (
-	pInfo(1, "localize: Warning: Oaku's strategy requires 
+	pInfo(1, "computeLocalization: Warning - Oaku's strategy requires 
 	     module to be f-saturated");
-	if r > 1 then error "non-cyclic modules not yet supported with this strategy";
+	if r > 1 then 
+            error "computeLocalization: non-cyclic modules not yet supported with this strategy";
 	I := ideal relations M;
      	tInfo := toString first timing (AnnI := AnnIFs2 (I,f););
 	pInfo(2, "\t\t\t time = " | tInfo | " seconds");
@@ -82,13 +85,14 @@ computeLocalization = (M, f, output, options) -> (
      	H := gens elimAnnI | matrix{{ff}};
 
 	if member(Boperator, output) then (
-	     pInfo(1, "localize: computing Bpoly and Bop...");
+	     pInfo(1, "computeLocalization: computing Bpoly and Bop...");
      	     tInfo = toString first timing (
 	     	  gbH := gb(H, ChangeMatrix => true);
      	     	  bpolys := selectInSubring(1, gens gbH);
-     	     	  if bpolys == 0 then error "module not specializable";
-     	     	  if rank source bpolys > 1 then error "ideal principal but not
-     	     	  realized as such.  Need better implementation";
+     	     	  if bpolys == 0 then 
+                      error "computeLocalization: module not specializable";
+     	     	  if rank source bpolys > 1 then 
+                      error "computeLocalization: ideal is principal but not realized as such. Need better implementation";
      	     	  bpoly := bpolys_(0,0);
 	     	  ind := position((entries gens gbH)#0, i -> (i == bpoly));
      	     	  C := getChangeMatrix gbH;
@@ -98,12 +102,12 @@ computeLocalization = (M, f, output, options) -> (
 	     pInfo(2, "\t\t\t time = " | tInfo | " seconds");	     
 	     )
 	else (
-	     pInfo(1, "localize: computing Bpoly...");
+	     pInfo(1, "computeLocalization: computing Bpoly...");
      	     tInfo = toString first timing (
 	     	  bpoly = (mingens ideal selectInSubring(1, gens gb H))_(0,0);
 		  );
 	     pInfo(2, "\t\t\t time = " | tInfo | " seconds");	     
-	     if bpoly == 0 then error "module not specializable";
+	     if bpoly == 0 then error "computeLocalization: module not specializable";
 	     );
 
      	bpoly = substitute(bpoly, (coefficientRing W)(monoid [Ws_(ns-1)]));
@@ -117,8 +121,7 @@ computeLocalization = (M, f, output, options) -> (
 	     if locModule == 0 then locMap = map(W^0, M, map(W^0,W^1,0))
        	     else (
 	     	  if bestPower > 0 then (
-	     	       pInfo(1, "Warning: Still need to add b-operator.  Adjusting
-		       generator to make localization map simple");
+	     	       pInfo(1, "computeLocalization: Warning! Still need to add b-operator.  Adjusting generator to make localization map simple");
 		       bestPower = 0;
 		       locIdeal = substitute(substitute(AnnI, 
 			    	 {Ws_(ns-1) => bestPower}), W);
@@ -130,7 +133,7 @@ computeLocalization = (M, f, output, options) -> (
 	     );
 	)
    else if options.Strategy === OTWcyclic then (
-       if r > 1 then error "non-cyclic modules not yet supported with this strategy";
+       if r > 1 then error "computeLocalization: non-cyclic modules not yet supported with this strategy";
        N := relations M;
        nW := numgens W;
        createDpairs W;
@@ -155,13 +158,13 @@ computeLocalization = (M, f, output, options) -> (
        twistMap := map(LW, LW, matrix{twistList});
        LN := WtoLW N;
        twistN := matrix{{1-Lf*a}} | twistMap LN;
-       pInfo (1, "localize: computing Bpoly...");
+       pInfo (1, "computeLocalization: computing Bpoly...");
        tInfo = toString first timing (
 	   bpoly = bFunction(ideal twistN, w);
 	   );
        pInfo(2, "\t\t\t time = " | tInfo | " seconds");
        if bpoly == 0 then (
-	   error "Module not specializable. Localization cannot be computed.";
+	   error "computeLocalization: Module not specializable. Localization cannot be computed.";
 	   );
        bpoly = substitute(bpoly, {(ring bpoly)_0 => (ring bpoly)_0 + 1});
        intRoots := getIntRoots(bpoly);
@@ -177,7 +180,7 @@ computeLocalization = (M, f, output, options) -> (
        -- case 2: localization generated by (1/f)^(maxroot+2)
        else (
 	   bestPower = -maxRoot - 2;
-	   pInfo(1, "localize: computing GB...");
+	   pInfo(1, "computeLocalization: computing GB...");
 	   tInfo = toString first timing (
 	       G := gbw(twistN, wt, Strategy => homogenize);
 	       );
@@ -220,7 +223,7 @@ computeLocalization = (M, f, output, options) -> (
 	   I2 := WtoHW I1;
 	   I3 := transpose ( HW_0 * (transpose I2)_{0..(targSize)-2} | 
 	       (transpose I2)_{targSize - 1} );
-	   pInfo(1, "localize: computing presentation...");
+	   pInfo(1, "computeLocalization: computing presentation...");
 	   tInfo = toString first timing (
 	       I4 := gens gb I3;
 	       );
@@ -283,11 +286,13 @@ computeLocalization = (M, f, output, options) -> (
        --realize it over the original Weyl Algebra 
        locModule = map(W,ring locIntegrationModule, gens W)**locIntegrationModule;  
        bpoly = value locIntegrationModule.cache.BFunction;
+       -- extend coefficients to QQ, if necessary:
+       bpoly = sub(bpoly, (ring bpoly)**QQ);
        bestPower = -max(getIntRoots bpoly | {0}) - 2;
        locMap = if locModule == 0 then map(W^0, M, map(W^0,W^1,0))
        else map(locModule, M, f^(-bestPower)*map(W^r));
        )
-   else error "Only recognizes strategies Oaku, OTWcyclic, and OTW (default).";
+   else error "computeLocalization only recognizes strategies Oaku, OTWcyclic, and OTW (default)";
 
    if member(LocModule, output) then outputList = append(outputList, 
 	LocModule => locModule);
@@ -311,12 +316,13 @@ computeLocalization = (M, f, output, options) -> (
    	if member(Boperator, output) then outputList = append(outputList,
 	     Boperator => Bop);
    	);
+
    hashTable outputList
    )
 
 AnnIFs2 = method()
 AnnIFs2(Ideal, RingElement) := (I, f) -> (
-     pInfo(1, "computing AnnIFs... ");
+     pInfo(1, "ENTERING AnnIFs2... ");
      W := ring I;
      n := numgens W;
      
