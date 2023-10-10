@@ -13,23 +13,22 @@
 globalBFunction = method(Options => {Strategy => GeneralBernsteinSato})
 
 -- makes polynomial f monic (internal) 
-makeMonic := f -> ( if coefficientRing ring f === QQ 
-     then (1 / (leadCoefficient f)) * f 
-     else (1 // (leadCoefficient f)) * f
-     );
+makeMonic := f -> 
+    if coefficientRing ring f === QQ then (1 / (leadCoefficient f)) * f 
+    else (1 // (leadCoefficient f)) * f
 
 -- also used in multiplierIdeals.m2
 star = method()
-star (Ideal,List) := (I,vw) -> (
-     W := ring I;
-     n := numgens W;
-     u := symbol u;
-     Wu := (coefficientRing W)(monoid [gens W, u_1, u_2, 
-	       WeylAlgebra => W.monoid.Options.WeylAlgebra]);
-     (u1,u2) := toSequence (gens Wu)_{n,n+1};
-     Ih := ideal homogenize(sub(gens I,Wu), u1, vw | {1,0}) + ideal (1-u1*u2);
-     sub(eliminateWA(Ih,{u1,u2}),W)
-     ) 
+star (Ideal, List) := (I, vw) -> 
+(
+    W := ring I;
+    n := numgens W;
+    u := symbol u;
+    Wu := (coefficientRing W)(monoid [gens W, u_1, u_2, WeylAlgebra => W.monoid.Options.WeylAlgebra]);
+    (u1,u2) := toSequence (gens Wu)_{n, n + 1};
+    Ih := ideal homogenize(sub(gens I, Wu), u1, vw | {1,0}) + ideal(1 - u1*u2);
+    sub(eliminateWA(Ih, {u1, u2}), W)
+) 
 
 --------------------------------------------------------
 -- version that uses bFunction
@@ -43,9 +42,9 @@ globalBFunctionIdeal RingElement := RingElement => o -> f -> (
      
      -- sanity check
      if (#(W.dpairInds#2) != 0) then
-     error "expected no central variables in Weyl algebra";
+     error "globalBFunctionIdeal: expected no central variables in Weyl algebra";
      if any(listForm f, m -> any(dpI#1, i -> m#0#i != 0)) then
-     error "expected no differentials in the polynomial";
+     error "globalBFunctionIdeal: expected no differentials in the polynomial";
      
      t := symbol t;
      dt := symbol dt;     

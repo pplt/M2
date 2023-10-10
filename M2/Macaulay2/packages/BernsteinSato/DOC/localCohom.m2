@@ -18,7 +18,7 @@ doc ///
             
             If the user selects {\tt OaTa}, then @TO localCohom@ uses a restriction from the graph embedding, a method due to T. Oaku and N. Takayama [3]. See @TO Drestriction@.  
     References         
-        [1] Walther, {\em Algorithmic computation of local cohomology modules and the local cohomological dimension of algebraic}  (JPAA (139), 1999).
+        [1] Walther, {\em Algorithmic computation of local cohomology modules and the local cohomological dimension of algebraic varieties}  (JPAA (139), 1999).
             
         [2] Oaku, Takayama, Walther, {\em A localization algorithm for $D$-modules} (J. Symbolic Computation (29), 2000).
             

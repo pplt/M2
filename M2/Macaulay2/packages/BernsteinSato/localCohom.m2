@@ -44,23 +44,31 @@ localCohomUli = (l, I) ->
     f := I_*;
     r := #f;
     W := ring I; -- Weyl algebra
-    n := (dim W) // 2; -- dimension of the ambient polynomial ring
+    n := (dim W) // 2; -- dimension of the ambient polynomial ring R
     L := sort unique flatten apply(l, x -> {x - 1, x, x + 1}); 
     Lmaps := sort unique flatten apply(l, x -> {x - 1, x});
-    L = select(L, x -> x >= 0 and x <= min(r, n)); -- cohomological degrees
-    Lmaps = select(Lmaps, x -> x >= 0 and x < min(r, n)); -- source degrees
-    subISets := hashTable apply(L, x -> x => subsets(toList (0..r-1), x));
+    L = select(L, x -> x >= 0 and x <= min(r, n)); -- list of cohomological degrees
+    Lmaps = select(Lmaps, x -> x >= 0 and x < min(r, n)); -- list of source degrees
+    subISets := hashTable apply(L, x -> x => subsets(toList (0..r-1), x)); 
+    -- subISets is a hash table with pairs 
+    -- i (ZZ) => {subsets of indices with i elements} (a list of lists)
     
     -- Step1.
     -- Calculate J^/delta( (F_/theta)^s ) and b^/delta_(F_/theta)(s)  for all theta
     prodS := hashTable apply(flatten values subISets, 
         theta -> theta => (product(theta, i -> f#i))_W
     );
+    -- prodS is a hash table with pairs
+    -- \theta (a list of indices) => F_\theta := \prod_{i\in\theta} f_i
     pInfo(1, "localCohomUli: Computing annihilators...");
     J := applyValues(prodS, f -> (f, AnnFs f, true));
     pInfo(1, "localCohomUli: Computing b-functions...");
     bF := applyValues(J, globalRBAnnFs);
+    -- bF is a hash table with pairs
+    -- \theta (a list of indices) => b_{F_\theta} (reduced BS poly of F_\theta)
     J = applyValues(J, x -> x#1); -- Now J is a hash table of annihilators
+    -- J is a hash table with pairs
+    -- theta (list of indices) => Ann(F_theta^s) (an ideal of W[s])
     
     -- Step 2.
     -- a = min integer root of all bF-s
@@ -72,7 +80,10 @@ localCohomUli = (l, I) ->
     -- Step 3.
     -- Compute the Čech complex 
     pInfo(1, "localCohomUli: Building the Čech complex...");
-    C := applyValues(subISets, S -> directSum apply(S, theta -> (theta => W^1 / J#theta)));
+    C := applyValues(subISets, S -> directSum apply(S, theta -> (theta => W^1/J#theta)));
+    -- C = the Čech complex, represented as a hash table with pairs
+    -- i (ZZ) => C^i = \bigoplus_{|\theta|=i} R_{F_\theta}
+    -- where the localizations R_{F_\theta} are represented as quotients of W^1
     local i0;
     local j0;
     local m;
@@ -329,16 +340,30 @@ localCohomRegular (List, Ideal, Module) := (l, I, M) ->
     f := I_*;
     FT := theta -> product(theta, i -> f#i);
     r := #f;
-    W := ring I;
-    
+    W := ring I; -- Weyl algebra
+
     -- n := (dim W) // 2; -- dimension of the ambient polynomial ring
     -- L := sort unique flatten apply(l, x -> {x - 1, x, x + 1}); 
     -- Lmaps := sort unique flatten apply(l, x -> {x - 1, x});
-    -- L = select(L, x -> x >= 0 and x <= min(r, n)); -- cohomological degrees
-    -- Lmaps = select(Lmaps, x -> x >= 0 and x < min(r, n)); -- source degrees
-    -- subISets := new HashTable from apply(L, x -> x => subsets(toList (0..r-1), x));
-    -- prodS := new HashTable from 
-    --     apply(flatten values subISets, theta -> theta => (product(theta, i -> f#i))_W);
+    -- L = select(L, x -> x >= 0 and x <= min(r, n)); -- list of cohomological degrees
+    -- Lmaps = select(Lmaps, x -> x >= 0 and x < min(r, n)); -- list of source degrees
+    -- subISets := hashTable apply(L, x -> x => subsets(toList (0..r-1), x)); 
+    -- -- subISets is a hash table with pairs 
+    -- -- i (ZZ) => {subsets of indices with i elements} (a list of lists)
+    -- prodS := hashTable apply(flatten values subISets, 
+    --     theta -> theta => (product(theta, i -> f#i))_W
+    -- );
+    -- -- prodS is a hash table with pairs
+    -- -- theta (a list of indices) => F_theta = product of f_i with i in theta (a polynomial)
+    -- pInfo(1, "localCohomUli: Computing annihilators...");
+    -- J := applyValues(prodS, f -> (f, AnnFs f, true));
+    -- pInfo(1, "localCohomUli: Computing b-functions...");
+    -- bF := applyValues(J, globalRBAnnFs);
+    -- -- bF is a hash table with pairs
+    -- -- theta (a list of indices) => b_(F_theta) (a polynomial in s)
+    -- J = applyValues(J, x -> x#1); -- Now J is a hash table of annihilators
+    -- -- J is a hash table with pairs
+    -- -- theta (list of indices) => Ann(F_theta)^s (an ideal of W)
     
     subISets := select(subsets toList (0..r-1), s -> s =!= {});
     L := new MutableHashTable;
